@@ -27,7 +27,7 @@ class ServerView(HTTPMethodView):
     @protected_route()
     async def post(self, request, data: ServerCreateParams):
         server = Server(
-            container_uuid=uuid.uuid4()
+            container_uuid=uuid.uuid4(),
             name=data.name,
             description=data.description,
             owned_by=request.headers['Authorization'],
