@@ -52,3 +52,13 @@ async def init_db(app: sanic.Sanic, loop):
     await create_db()
     await populate_database()
     await attach_db(app)
+
+async def key_valid(key: str):
+    key = key.removeprefix("Bearer ")
+
+    async with async_session() as session:
+        async with session.begin():
+            key = await session.query(AuthKeys).filter(AuthKeys.key == key).first()
+            if key:
+                return True
+            return False
