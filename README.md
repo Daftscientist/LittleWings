@@ -1,8 +1,8 @@
-# LittleWings
+# LittleWings 🚀
 
 LittleWings is a web application designed to manage and interact with Docker containers via a WebSocket-based interface. This project leverages the Sanic web framework to handle HTTP and WebSocket requests, enabling real-time communication and control of Docker containers.
 
-## Features
+## Features ✨
 
 - **WebSocket Integration**: Real-time interaction with Docker containers through WebSocket.
 - **Docker Log Streaming**: Stream Docker container logs to the client in real-time.
@@ -11,7 +11,7 @@ LittleWings is a web application designed to manage and interact with Docker con
 - **Protected Routes**: Secure WebSocket routes with authentication.
 - **Server Management**: Includes server management scripts for various actions.
 
-## Project Structure
+## Project Structure 📁
 
 ```
 /src
@@ -29,7 +29,7 @@ LittleWings is a web application designed to manage and interact with Docker con
 ├── main.py                # Main entry point for the Sanic application
 ```
 
-### Detailed File Description
+### Detailed File Description 📝
 
 - **api/websocket.py**: Handles WebSocket connections and streams Docker logs to the client.
 - **api/manage.py**: Contains management utilities for server operations.
@@ -41,16 +41,16 @@ LittleWings is a web application designed to manage and interact with Docker con
 - **views/api_views.py**: Registers API views for HTTP routes.
 - **main.py**: The main entry point for starting the Sanic application.
 
-## Getting Started
+## Getting Started 🚀
 
-### Prerequisites
+### Prerequisites ✅
 
 - Python 3.8+
 - Docker
 - Sanic
 - Other dependencies listed in `requirements.txt`
 
-### Installation
+### Installation 🛠️
 
 1. Clone the repository:
 
@@ -72,11 +72,11 @@ LittleWings is a web application designed to manage and interact with Docker con
     pip install -r requirements.txt
     ```
 
-### Configuration
+### Configuration ⚙️
 
 Ensure that your Docker environment is properly set up and that you have the necessary permissions to manage Docker containers.
 
-### Running the Application
+### Running the Application ▶️
 
 1. Start the Sanic application:
 
@@ -86,7 +86,7 @@ Ensure that your Docker environment is properly set up and that you have the nec
 
 2. The application will run on `localhost` at port `8000`. You can change the host and port in the `main.py` file if needed.
 
-### Usage
+### Usage 📡
 
 - **WebSocket Endpoint**: `/api/ws`
 
@@ -95,7 +95,7 @@ Ensure that your Docker environment is properly set up and that you have the nec
     - **Execute Command**: Send commands to be executed on the Docker container.
     - **Heartbeat**: Maintain the WebSocket connection by sending periodic heartbeat messages.
 
-### Example WebSocket Messages
+### Example WebSocket Messages 💬
 
 #### Connect
 
@@ -127,18 +127,18 @@ Once connected, logs will start streaming automatically.
 }
 ```
 
-### Security
+### Security 🔒
 
 The WebSocket endpoint is protected by a custom `protected_route` decorator that checks for an `Authorization` header. Ensure to provide this in your request.
 
-## Contributing
+## Contributing 🤝
 
 Contributions are welcome! Please open an issue or submit a pull request with your changes.
 
-## License
+## License 📜
 
 This project is licensed under the MIT License. See the [LICENSE](../LICENSE) file for details.
 
-## Contact
+## Contact 📧
 
 For any inquiries or feedback, please contact [Daftscientist](https://github.com/Daftscientist).
