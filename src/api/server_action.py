@@ -7,7 +7,7 @@ from core.authentication import protected_route
 from core.server import Server
 from validation.server_action import ActionGetParams, ActionChangeParams
 
-class ServerView(HTTPMethodView):
+class ServerActionView(HTTPMethodView):
     path = '/api/server/action'
 
     @validate(
