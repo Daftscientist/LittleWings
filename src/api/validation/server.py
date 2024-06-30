@@ -23,3 +23,12 @@ class ServerCreateParams:
 
     visable_host: str = "localhost"
     port: int
+
+@dataclass
+class ServerEditParams:
+    server_id: int
+    data: dict
+
+@dataclass
+class DeleteServerParams:
+    server_id: int

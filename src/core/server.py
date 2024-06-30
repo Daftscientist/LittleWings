@@ -138,6 +138,12 @@ class Server():
         ## update env variables
         manager.update_env_variables(container, self.enviroment_variables)
 
+    def delete(self):
+        manager = DockerManager()
+
+        container = manager.get_container(self.container_id)
+        container.remove(v=True, link=True, force=True)
+
     def start(self):
         manager = DockerManager()
 
@@ -175,6 +181,8 @@ class Server():
             manager.change_container_state(self.container_id, "stopping")
             manager.stop_container(self.container_id, kill=True)
             manager.change_container_state(self.container_id, "stopped")
+        else:
+            raise ValueError("Invalid action")
 
     def __json__(self):
         return {

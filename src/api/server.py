@@ -4,7 +4,7 @@ from sanic import response
 from sanic_ext import validate
 from core.authentication import protected_route
 ## import validation
-from validation.server import ServerCreateParams, GetServerParams
+from validation.server import ServerCreateParams, GetServerParams, ServerEditParams, DeleteServerParams
 from core.server import Server
 
 class ServerView(HTTPMethodView):
@@ -47,3 +47,35 @@ class ServerView(HTTPMethodView):
             {"status": "success", "server_id": server.container_uuid},
         )
     
+    @validate(
+        json=ServerEditParams  
+    )
+    @protected_route()
+    async def patch(self, request, data: ServerEditParams):
+        server = Server(
+            container_id=data.server_id,
+        )
+        server.load_from_docker()
+
+        for item in data.data:
+            if item.lower() not in server.__dict__:
+                continue
+            setattr(server, item.lower(), data.data[item])
+
+        return response.json(
+            {"status": "success", "server_id": data.server_id},
+        )
+
+    @validate(
+        json=DeleteServerParams
+    )
+    @protected_route()
+    async def delete(self, request, data: DeleteServerParams):
+        server = Server(
+            container_id=data.server_id,
+        )
+        server.load_from_docker()
+        server.delete()
+        return response.json(
+            {"status": "success", "server_id": None},
+        )
