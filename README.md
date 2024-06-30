@@ -129,7 +129,7 @@ Once connected, logs will start streaming automatically.
 
 ### Security
 
-The WebSocket endpoint is protected by a custom `protected_route` decorator that checks for an `Authorization` header. Ensure to implement your token validation logic in `authentication.py`.
+The WebSocket endpoint is protected by a custom `protected_route` decorator that checks for an `Authorization` header. Ensure to provide this in your request.
 
 ## Contributing
 
