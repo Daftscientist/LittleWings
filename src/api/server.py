@@ -58,9 +58,8 @@ class ServerView(HTTPMethodView):
         server.load_from_docker()
 
         for item in data.data:
-            if item.lower() not in server.__dict__:
-                continue
-            setattr(server, item.lower(), data.data[item])
+            if item.lower() in server.__dict__:
+                setattr(server, item.lower(), data.data[item])
 
         return response.json(
             {"status": "success", "server_id": data.server_id},

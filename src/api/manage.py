@@ -15,7 +15,31 @@ CONFIG_VALUES = [
     "FrontendEggEndpoint"
 ]
 
-class ServerView(HTTPMethodView):
+class DaemonAuthView(HTTPMethodView):
+    path = '/api/daemon/auth'
+
+    @protected_route()
+    async def get(self, request):
+        app = request.app
+
+        async with app.ctx.db_session() as session:
+            async with session.begin():
+                keys = await session.execute("SELECT * FROM auth_keys")
+                keys = keys.fetchall()
+                    
+                keys = [{"key": item[0], "info": item[1]} for item in keys]
+
+        return response.json({"status": "success", "data": keys})
+
+    @protected_route()
+    async def post(self, request):
+        app = request.app
+
+        new_key = await app.ctx.gen_key()
+
+        return response.json({"status": "success", "key": new_key})
+
+class DaemonManageView(HTTPMethodView):
     path = '/api/daemon/manage'
 
     @protected_route()

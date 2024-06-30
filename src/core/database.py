@@ -47,11 +47,20 @@ async def populate_database():
                 await session.add(Config(key=key, value=True))
             await session.add(AuthKeys())
 
+async def generate_new_key():
+    async with async_session() as session:
+        async with session.begin():
+            key = AuthKeys()
+            await session.add(key)
+            await session.commit()
+            return key.key
+
 # Initiate the database
 async def init_db(app: sanic.Sanic, loop):
     await create_db()
     await populate_database()
     await attach_db(app)
+    app.ctx.gen_key = generate_new_key
 
 async def key_valid(key: str):
     key = key.removeprefix("Bearer ")
