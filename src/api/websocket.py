@@ -8,7 +8,11 @@ class WebsocketView():
         server.execute_command(command)
 
     async def stream_docker_logs(self, ws, server: Server):
-        async for line in server.stream_terminal_logs():
+        """
+        Stream logs from the Docker container and send them over the WebSocket connection.
+        """
+        logs = server.stream_terminal_logs()
+        async for line in logs:
             await ws.send(json.dumps({"type": "log", "data": line.decode("utf-8")}))
 
     async def entry(self, request, ws):
@@ -27,19 +31,19 @@ class WebsocketView():
                     data = await ws.recv()
                     data = json.loads(data)
 
-                    if data.get("type") == "connect":
+                    if data.get("type").lower() == "connect":
                         server = Server(container_id=data.get("server_id"))
                         server.load_from_docker()
                         await ws.send(json.dumps({"status": "success", "message": "Server connected"}))
                         asyncio.create_task(self.stream_docker_logs(ws, server))
 
-                    elif data.get("type") == "command":
+                    elif data.get("type").lower() == "command":
                         if server:
                             await self.execute_command(server, data["command"])
                         else:
                             await ws.send(json.dumps({"status": "error", "message": "Server not connected"}))
 
-                    elif data.get("type") == "heartbeat":
+                    elif data.get("type").lower() == "heartbeat":
                         heartbeat_ending_at = time.time() + 60 * 3
                         await ws.send(json.dumps({"status": "success", "message": "Heartbeat renewed"}))
                     
