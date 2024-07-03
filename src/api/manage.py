@@ -5,8 +5,11 @@ from sanic_ext import validate
 from core.authentication import protected_route
 ## import validation
 from core.server import Server
-from validation.manage import EditConfigValues
+from validation.manage import EditConfigValues, DeleteAuthKeyParams
 from views import CONFIG_VALUES
+from sqlalchemy.future import select
+from sqlalchemy import delete, update
+from core.database import AuthKeys, Config
 
 class DaemonAuthView(HTTPMethodView):
     path = '/api/daemon/auth'
@@ -17,10 +20,12 @@ class DaemonAuthView(HTTPMethodView):
 
         async with app.ctx.db_session() as session:
             async with session.begin():
-                keys = await session.execute("SELECT * FROM auth_keys")
-                keys = keys.fetchall()
-                    
-                keys = [{"key": item[0], "info": item[1]} for item in keys]
+                # Assuming AuthKey is the ORM model representing the auth_keys table
+                # and it has columns 'key' and 'info'
+                result = await session.execute(select(AuthKeys))
+                keys = result.scalars().all()
+
+                keys = [{"key": item.key, "info": item.info} for item in keys]
 
         return response.json({"status": "success", "data": keys})
 
@@ -32,6 +37,20 @@ class DaemonAuthView(HTTPMethodView):
 
         return response.json({"status": "success", "key": new_key})
 
+    @validate(DeleteAuthKeyParams)
+    @protected_route()
+    async def delete(self, request, data: DeleteAuthKeyParams):
+        app = request.app
+
+        async with app.ctx.db_session() as session:
+            async with session.begin():
+                # Assuming AuthKey is the ORM model representing the auth_keys table
+                # and it has a column 'key' that matches 'data.key'
+                stmt = delete(AuthKeys).where(AuthKeys.key == data.key)
+                await session.execute(stmt)
+
+        return response.json({"status": "success"})
+
 class DaemonManageView(HTTPMethodView):
     path = '/api/daemon/manage'
 
@@ -41,31 +60,37 @@ class DaemonManageView(HTTPMethodView):
 
         async with app.ctx.db_session() as session:
             async with session.begin():
-                config = await session.execute("SELECT * FROM config")
-                config = config.fetchall()
+                # Assuming Config is the ORM model representing the config table
+                # and it has columns 'key' and 'value'
+                result = await session.execute(select(Config))
+                config_items = result.scalars().all()
 
-                config = {item[0]: item[1] for item in config}
-                for item in config:
-                    if item not in CONFIG_VALUES:
-                        del config[item]
+                # Convert to dictionary and filter based on CONFIG_VALUES
+                config = {item.key: item.value for item in config_items if item.key in CONFIG_VALUES}
 
         return response.json({"status": "success", "data": config})
 
-    @validate(
-        json=EditConfigValues
-    )
+    @validate(json=EditConfigValues)
     @protected_route()
     async def patch(self, request, data: EditConfigValues):
-
         app = request.app
 
+        # Validate config values
         for item in data.config_values:
             if item not in CONFIG_VALUES:
                 return response.json({"status": "error", "error": "Invalid config value"})
-        
+
         async with app.ctx.db_session() as session:
             async with session.begin():
+                # Assuming Config is the ORM model representing the config table
+                # and it has columns 'key' and 'value'
                 for key, value in data.config_values.items():
-                    await session.execute(f"UPDATE config SET value = '{value}' WHERE key = '{key}'")
+                    # Find the config item by key and update its value
+                    stmt = (
+                        update(Config)
+                        .where(Config.key == key)
+                        .values(value=value)
+                    )
+                    await session.execute(stmt)
 
         return response.json({"status": "success"})
