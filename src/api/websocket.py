@@ -61,7 +61,6 @@ class WebsocketView():
                         await ws.send(json.dumps({"status": "error", "message": "Invalid request"}))
 
                 except Exception as e:
-                    print(f"Error: {e}")
-                    break
+                    raise e
 
         await asyncio.gather(send_heartbeat(), handle_messages())
