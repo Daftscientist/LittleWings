@@ -3,6 +3,9 @@ import time
 import asyncio
 from core.server import Server
 
+HEARTBEAT_TIMEOUT = 60 * 3  # 3 minutes
+HEARTBEAT_REMINDER_THRESHOLD = 15  # seconds before heartbeat ends to send reminder
+
 class WebsocketView():
     async def execute_command(self, server: Server, command):
         server.execute_command(command)
@@ -16,18 +19,17 @@ class WebsocketView():
             await ws.send(json.dumps({"type": "log", "data": line.decode("utf-8")}))
 
     async def entry(self, request, ws):
-        heartbeat_ending_at = time.time() + 60 * 3
+        heartbeat_ending_at = time.time() + HEARTBEAT_TIMEOUT
         server = None
         reminder_sent = False  # flag to ensure reminder is sent only once
 
         async def send_heartbeat():
             nonlocal heartbeat_ending_at, reminder_sent
-            reminder_threshold = 15  # seconds before heartbeat ends to send reminder
 
             while heartbeat_ending_at > time.time():
                 # Check if within reminder threshold and reminder not yet sent
-                if heartbeat_ending_at - time.time() <= reminder_threshold and not reminder_sent:
-                    await ws.send(json.dumps({"type": "heartbeat_reminder", "message": f"Heartbeat about to end in {reminder_threshold}, please renew."}))
+                if heartbeat_ending_at - time.time() <= HEARTBEAT_REMINDER_THRESHOLD and not reminder_sent:
+                    await ws.send(json.dumps({"type": "heartbeat_reminder", "message": f"Heartbeat about to end in {HEARTBEAT_REMINDER_THRESHOLD}, please renew."}))
                     reminder_sent = True  # Set flag to true after sending reminder
                 await asyncio.sleep(1)
 
@@ -51,7 +53,7 @@ class WebsocketView():
                             await ws.send(json.dumps({"status": "error", "message": "Server not connected"}))
 
                     elif data.get("type").lower() == "heartbeat":
-                        heartbeat_ending_at = time.time() + 60 * 3
+                        heartbeat_ending_at = time.time() + HEARTBEAT_TIMEOUT
                         reminder_sent = False  # Reset reminder flag to allow reminder to be sent again
                         await ws.send(json.dumps({"status": "success", "message": "Heartbeat renewed"}))
                     
