@@ -5,7 +5,7 @@ from sanic_ext import validate
 from core.authentication import protected_route
 ## import validation
 from core.server import Server
-from validation.server_action import ActionGetParams, ActionChangeParams
+from validation.server_action import ActionGetParams, ActionChangeParams, SendServerCommandParams
 
 class ServerActionView(HTTPMethodView):
     path = '/api/server/action'
@@ -14,7 +14,7 @@ class ServerActionView(HTTPMethodView):
         json=ActionGetParams  
     )
     @protected_route()
-    def get(self, request, data: ActionGetParams):
+    async def get(self, request, data: ActionGetParams):
         server = Server(
             container_id=data.server_id,
         )
@@ -22,10 +22,22 @@ class ServerActionView(HTTPMethodView):
         return response.json({"current_status": server.public_status})
 
     @validate(
+        json=SendServerCommandParams  
+    )
+    @protected_route()
+    async def post(self, request, data: SendServerCommandParams):
+        server = Server(
+            container_id=data.server_id,
+        )
+        server.load_from_docker()
+        server.execute_command(data.command)
+        return response.json({"status": "success", "server_id": data.server_id})
+
+    @validate(
         json=ActionChangeParams  
     )
     @protected_route()
-    def patch(self, request, data: ActionChangeParams):
+    async def patch(self, request, data: ActionChangeParams):
         server = Server(
             container_id=data.server_id,
         )
