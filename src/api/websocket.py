@@ -18,14 +18,21 @@ class WebsocketView():
     async def entry(self, request, ws):
         heartbeat_ending_at = time.time() + 60 * 3
         server = None
+        reminder_sent = False  # flag to ensure reminder is sent only once
 
         async def send_heartbeat():
-            nonlocal heartbeat_ending_at
+            nonlocal heartbeat_ending_at, reminder_sent
+            reminder_threshold = 15  # seconds before heartbeat ends to send reminder
+
             while heartbeat_ending_at > time.time():
+                # Check if within reminder threshold and reminder not yet sent
+                if heartbeat_ending_at - time.time() <= reminder_threshold and not reminder_sent:
+                    await ws.send(json.dumps({"type": "heartbeat_reminder", "message": f"Heartbeat about to end in {reminder_threshold}, please renew."}))
+                    reminder_sent = True  # Set flag to true after sending reminder
                 await asyncio.sleep(1)
 
         async def handle_messages():
-            nonlocal heartbeat_ending_at, server
+            nonlocal heartbeat_ending_at, server, reminder_sent
             while heartbeat_ending_at > time.time():
                 try:
                     data = await ws.recv()
@@ -45,6 +52,7 @@ class WebsocketView():
 
                     elif data.get("type").lower() == "heartbeat":
                         heartbeat_ending_at = time.time() + 60 * 3
+                        reminder_sent = False  # Reset reminder flag to allow reminder to be sent again
                         await ws.send(json.dumps({"status": "success", "message": "Heartbeat renewed"}))
                     
                     else:

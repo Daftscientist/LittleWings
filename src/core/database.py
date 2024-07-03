@@ -3,6 +3,7 @@ import sanic
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from views import CONFIG_VALUES
 
 # Database connection
 DATABASE_URL = "sqlite:///./test.db"
@@ -43,8 +44,8 @@ async def create_db():
 async def populate_database():
     async with async_session() as session:
         async with session.begin():
-            for key in ['external_server_config_endpoint', 'external_check_endpoint', 'max_servers']:
-                await session.add(Config(key=key, value=True))
+            for key in CONFIG_VALUES:
+                await session.add(Config(key=key, value=None))
             await session.add(AuthKeys())
 
 async def generate_new_key():

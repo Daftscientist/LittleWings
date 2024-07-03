@@ -6,14 +6,7 @@ from core.authentication import protected_route
 ## import validation
 from core.server import Server
 from validation.manage import EditConfigValues
-
-CONFIG_VALUES = [
-    "DaemonName",
-    "DaemonDescription",
-    "DaemonHost",
-    "DaemonHostAlias",
-    "FrontendEggEndpoint"
-]
+from views import CONFIG_VALUES
 
 class DaemonAuthView(HTTPMethodView):
     path = '/api/daemon/auth'

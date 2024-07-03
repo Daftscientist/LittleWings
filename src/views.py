@@ -8,3 +8,11 @@ API_VIEWS = [
     DaemonManageView,
     DaemonAuthView
 ]
+
+CONFIG_VALUES = [
+    "DaemonName",
+    "DaemonDescription",
+    "DaemonHost",
+    "DaemonHostAlias",
+    "FrontendEggEndpoint"
+]
