@@ -1,3 +1,4 @@
+import os
 import docker
 import json
 
@@ -15,6 +16,28 @@ class DockerManager:
     def stop_container(self, container_id):
         container = self.client.containers.get(container_id)
         container.stop()
+
+    def list_dir(self, container_uuid, dir_path="/"):
+        ## get files using the symlink path:
+        """
+           /mnt/server/{self.container_uuid} -local mount
+        """
+
+        ## get files using the symlink path:
+        ## handle if dir not found
+
+
+        files = os.listdir(f"/mnt/server/{container_uuid}{dir_path}")
+
+        if not files:
+            return []
+        ## just fetch the names of files and directories
+
+        return files
+    
+    def get_file(self, container_uuid, file_path):
+        with open(f"/mnt/server/{container_uuid}{file_path}", "rb") as file:
+            return file.read()
 
     def list_containers(self):
         return self.client.containers.list()

@@ -124,11 +124,11 @@ class Server():
                 ## set volume where containers root directory is stored in a folder on the machine located at '/mnt/server/{container_uuid}'
                 volumes={
                     f"/mnt/server/{self.container_uuid}": {
-                        "bind": "/mnt/server",
+                        "bind": "/",
                         "mode": "rw"
                     }
                 },
-                working_dir=f"/mnt/server/{self.container_uuid}",
+                working_dir=f"/",
             )
 
         container = manager.get_container(self.container_id)
@@ -153,6 +153,34 @@ class Server():
         exec_id = container.exec_run(command, stdout=True, stderr=True, detach=True)
 
         return exec_id
+
+    def get_root_dir(self):
+        """ fetch the files in the containers root dir from the syslinked filepath of the server """
+        manager = DockerManager()
+        files = manager.list_dir(self.container_uuid)
+        return files
+
+    def get_dir_list(self, dir_path):
+        """ fetch the files in a directory in the containers root dir from the syslinked filepath of the server """
+        manager = DockerManager()
+        files = manager.list_dir(self.container_uuid, dir_path)
+        return files
+
+    def get_file_archive(self, file_path):
+        """ bits, stats = get_file_archive(file_path)"""
+        manager = DockerManager()
+
+        container = manager.get_container(self.container_id)
+        file = container.get_archive(file_path)
+
+        return file
+
+    def get_file_stream(self, file_path):
+        manager = DockerManager()
+
+        file = manager.get_file(self.container_uuid, file_path)
+
+        return file
 
     def delete(self):
         manager = DockerManager()
