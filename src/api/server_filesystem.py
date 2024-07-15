@@ -20,6 +20,21 @@ class FileSystem(HTTPMethodView):
         )
         server.load_from_docker()
         
+        if not data.path.startswith("/"):
+            return response.json(
+                {
+                    "error": "Invalid path"
+                },
+                status=400
+            )
+
+        if data.path != "/" and data.path[-1] != "/":
+            ## if the path is to a file then return the file
+            
+            return response.file_stream(
+                f"/mnt/server/{server.container_uuid}{data.path}",
+            )
+
         files = server.get_dir_list(data.path)
         return response.json(
             {
@@ -27,4 +42,4 @@ class FileSystem(HTTPMethodView):
             }
         )
 
-    
+    @
