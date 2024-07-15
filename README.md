@@ -11,6 +11,9 @@ LittleWings is a web application designed to manage and interact with Docker con
 - **Protected Routes**: Secure WebSocket routes with authentication.
 - **Server Management**: Includes server management scripts for various actions.
 
+## Works with ⛓️
+- This project works hand in hand with its [Webapp UI](https://github.com/Daftscientist/project-1)
+
 ## Project Structure 📁
 
 ```
